@@ -28,7 +28,9 @@ public class DefaultDataService {
     public List<String> getCredGroups(String principal){
         List<String> groups = new ArrayList<>();
         this.credRepo.findByUsername(principal).forEach(cred -> {
-            groups.add(cred.getCredGroupName());
+            if(!groups.contains(cred.getCredGroupName())) {
+                groups.add(cred.getCredGroupName());
+            }
         });
         return groups;
     }
@@ -39,7 +41,7 @@ public class DefaultDataService {
         if (nameParam != null && !nameParam.isEmpty()){
             creds = this.credRepo.getCredByParentName(user, groupName, nameParam);
         }else{
-            creds = this.credRepo.findByUsername(user);
+            creds = this.credRepo.getCredByGroupName(user, groupName);
         }
         if(creds != null) {
             creds.forEach(cred -> {
@@ -65,10 +67,17 @@ public class DefaultDataService {
         credential.setUsername(user);
         credential.setLastModified(new Date().toString());
 
-        if(getCredDetail(credential.getUsername(), credential.getCredGroupName(), credential.getCredName()) == null) {
+        WebCredential savedCred = getCredDetail(credential.getUsername(), credential.getCredGroupName(), credential.getCredName());
+
+        if( savedCred == null) {
             this.credRepo.save(credential);
         }else{
-            throw new Exception("Credential already exists by name ["+ credential.getCredName()+"]");
+            savedCred.setParentCredName(savedCred.getCredName());
+            savedCred.setCredName(savedCred.getCredName()+ UUID.randomUUID().toString());
+            this.credRepo.save(savedCred);
+            this.credRepo.save(credential);
+
+            throw new Exception("Credential by name ["+ credential.getCredName()+"] updated");
         }
     }
 }

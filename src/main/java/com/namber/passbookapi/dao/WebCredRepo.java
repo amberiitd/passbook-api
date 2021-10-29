@@ -19,4 +19,7 @@ public interface WebCredRepo extends CrudRepository<WebCredential, String> {
 
     @Query(value="SELECT * FROM web_credential WHERE username=?1 and cred_group_name=?2 and cred_name=?3", nativeQuery = true)
     List<WebCredential> getCredByName(String user, String groupName, String credName);
+
+    @Query(value="SELECT * FROM web_credential WHERE username=?1 and cred_group_name=?2 and parent_cred_name IS NULL", nativeQuery = true)
+    List<WebCredential> getCredByGroupName(String user, String groupName);
 }

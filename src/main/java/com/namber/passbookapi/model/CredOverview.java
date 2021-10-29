@@ -10,6 +10,6 @@ public class CredOverview {
     private String parentCredName;
     private String credGroupName;
     private String credWebServer;
-    private Date lastModified;
+    private String lastModified;
 
 }
